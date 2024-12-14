@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resume Analyzer</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-image: url('path/to/your/background-image.jpg');
+            background-size: cover;
+            background-position: center;
+            color: #fff;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 100px auto;
+            padding: 20px;
+            background-color: rgba(0, 0, 0, 0.7);
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 20px;
+        }
+
+        input[type="file"] {
+            margin: 20px 0;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+        }
+
+        button {
+            padding: 10px 20px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+        }
+
+        button:hover {
+            background-color: #218838;
+        }
+
+        #results {
+            margin-top: 20px;
+            font-size: 1.2em;
+        }
+    </style>
+    <div class="container">
+        <h1>Resume Analyzer</h1>
+        <form action="/analyze" method="post" enctype="multipart/form-data">
+            <input type="file" name="resume" accept=".pdf, .docx">
+            <button type="submit">Analyze Resume</button>
+        </form>
+        <div id="results"></div>
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.querySelector('form');
+            const resultsDiv = document.getElementById('results');
+
+            form.addEventListener('submit', function(event) {
+                event.preventDefault(); // Prevent the default form submission
+
+                const fileInput = document.querySelector('input[type="file"]');
+                const file = fileInput.files[0];
+
+                if (!file) {
+                    alert('Please select a resume file to upload.');
+                    return;
+                }
+
+                // Display loading message
+                resultsDiv.innerHTML = '<p>Analyzing your resume, please wait...</p>';
+
+                // Create FormData object to send the file
+                const formData = new FormData();
+                formData.append('resume', file);
+
+                // Send the file to the server using fetch
+                fetch('/analyze', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    // Display the results
+                    if (data.success) {
+                        resultsDiv.innerHTML = `<h2>Analysis Results:</h2><p>${data.message}</p>`;
+                    } else {
+                        resultsDiv.innerHTML = `<h2>Error:</h2><p>${data.error}</p>`;
+                    }
+                })
+                .catch(error => {
+                    resultsDiv.innerHTML = `<h2>Error:</h2><p>There was a problem with the request.</p>`;
+                    console.error('Error:', error);
+                });
+            });
+        });
+    </script>
+</body>
+</html>
